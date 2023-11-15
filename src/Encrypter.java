@@ -1,4 +1,6 @@
+
 import java.io.File;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
@@ -34,9 +36,9 @@ public class Encrypter {
      */
     public void encrypt(String inputFilePath, String encryptedFilePath) throws Exception {
         //TODO: Call the read method, encrypt the file contents, and then write to new file
-        String words = readFile(inputFilePath);
-        String encryptedWords = encryptText(words,shift);
-        writeFile(encryptedWords,encryptedFilePath);
+        String encryptFile = readFile(inputFilePath);
+        String encryptedText = performEncryption(encryptFile, shift);
+        writeFile(encryptedText, encryptedFilePath);
     }
 
     /**
@@ -48,9 +50,9 @@ public class Encrypter {
      */
     public void decrypt(String messageFilePath, String decryptedFilePath) throws Exception {
         //TODO: Call the read method, decrypt the file contents, and then write to new file
-        String encryptedWords = readFile(messageFilePath);
-        String decryptedWords = decryptText(encryptedWords,shift);
-        writeFile(decryptedWords,decryptedFilePath);
+        String decyrptText = readFile(messageFilePath);
+        String decryptedText = performDecryption(decyrptText, shift);
+        writeFile(decryptedText, decryptedFilePath);
     }
 
     /**
@@ -61,14 +63,16 @@ public class Encrypter {
      * @throws Exception if an error occurs while reading the file
      */
     private static String readFile(String filePath) throws Exception {
-        StringBuilder message = new StringBuilder();
-        try (Scanner scanner = new Scanner(new File(filePath))) {
-            while (scanner.hasNextLine()) {
-                message.append(scanner.nextLine()).append("\n");
-            }
-        }
+        String message = "";
 
-        return message.toString();
+        //TODO: Read file from filePath
+        try (Scanner fileScanner = new Scanner(new File(filePath))) {
+            while (fileScanner.hasNextLine()) {
+                message += fileScanner.nextLine() + "\n";
+            }
+            fileScanner.close();
+        }
+        return message;
     }
 
     /**
@@ -77,21 +81,15 @@ public class Encrypter {
      * @param data     the data to be written to the file
      * @param filePath the path to the file where the data will be written
      */
-    private static void writeFile(String data, String filePath) throws IOException {
-        try (FileWriter writer = new FileWriter(new File(filePath))) {
-            writer.write(data);
+    private static void writeFile(String data, String filePath) {
+        //TODO: Write to filePath
+        try (FileWriter output = new FileWriter(filePath)) {
+            output.write(data);
+            System.out.println(data);
+            output.close();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.toString());
         }
-    }
-    private static String encryptText(String text,int shift){
-        StringBuilder encryptedText = new StringBuilder();
-        for(char i:text.toCharArray()){
-            if(Character.isLetter(i)){
-                char low = Character.isLowerCase(i)?'a':'A';
-                encryptedText.append((char) (i-low+shift)%26+low);
-            }else{
-                encryptedText.append(i);
-            }
-        }return encryptedText.toString();
     }
 
     /**
@@ -99,11 +97,27 @@ public class Encrypter {
      *
      * @return the encrypted text
      */
-    private static String decryptText(String text,int shift){
-        return encryptText(text,26-shift);
+    private static String performEncryption(String text, int shift) {
+        String encryptedText = "";
+        for (char c : text.toCharArray()) {
+            if (Character.isLetter(c)) {
+                char base = Character.isLowerCase(c) ? 'a' : 'A';
+                encryptedText += (char) (((c - base + shift) % 26 + 26) % 26 + base);
+            } else {
+                encryptedText += c;
+            }
+        }
+        return encryptedText;
     }
-    @Override
+
+
+    private static String performDecryption(String text, int shift) {
+        // Decryption is the same as encryption with a negative shift
+        return performEncryption(text, -shift);
+    }
+
     public String toString() {
         return encrypted;
     }
+
 }
