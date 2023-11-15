@@ -34,6 +34,9 @@ public class Encrypter {
      */
     public void encrypt(String inputFilePath, String encryptedFilePath) throws Exception {
         //TODO: Call the read method, encrypt the file contents, and then write to new file
+        String words = readFile(inputFilePath);
+        String encryptedWords = encryptText(words,shift);
+        writeFile(encryptedWords,encryptedFilePath);
     }
 
     /**
@@ -45,6 +48,9 @@ public class Encrypter {
      */
     public void decrypt(String messageFilePath, String decryptedFilePath) throws Exception {
         //TODO: Call the read method, decrypt the file contents, and then write to new file
+        String encryptedWords = readFile(messageFilePath);
+        String decryptedWords = decryptText(encryptedWords,shift);
+        writeFile(decryptedWords,decryptedFilePath);
     }
 
     /**
@@ -55,9 +61,14 @@ public class Encrypter {
      * @throws Exception if an error occurs while reading the file
      */
     private static String readFile(String filePath) throws Exception {
-        String message = "";
-        //TODO: Read file from filePath
-        return message;
+        StringBuilder message = new StringBuilder();
+        try (Scanner scanner = new Scanner(new File(filePath))) {
+            while (scanner.hasNextLine()) {
+                message.append(scanner.nextLine()).append("\n");
+            }
+        }
+
+        return message.toString();
     }
 
     /**
@@ -66,8 +77,21 @@ public class Encrypter {
      * @param data     the data to be written to the file
      * @param filePath the path to the file where the data will be written
      */
-    private static void writeFile(String data, String filePath) {
-        //TODO: Write to filePath
+    private static void writeFile(String data, String filePath) throws IOException {
+        try (FileWriter writer = new FileWriter(new File(filePath))) {
+            writer.write(data);
+        }
+    }
+    private static String encryptText(String text,int shift){
+        StringBuilder encryptedText = new StringBuilder();
+        for(char i:text.toCharArray()){
+            if(Character.isLetter(i)){
+                char low = Character.isLowerCase(i)?'a':'A';
+                encryptedText.append((char) (i-low+shift)%26+low);
+            }else{
+                encryptedText.append(i);
+            }
+        }return encryptedText.toString();
     }
 
     /**
@@ -75,6 +99,9 @@ public class Encrypter {
      *
      * @return the encrypted text
      */
+    private static String decryptText(String text,int shift){
+        return encryptText(text,26-shift);
+    }
     @Override
     public String toString() {
         return encrypted;
